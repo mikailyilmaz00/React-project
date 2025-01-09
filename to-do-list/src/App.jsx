@@ -3,6 +3,10 @@ import "./styles.css"
 import { NewTodoForm } from "./NewTodoForm"
 import { TodoList } from "./TodoList"
 import { useEffect } from "react"
+import CalendarComponent from "./CalendarComponent"
+import "./Calendar.css"
+import 'react-calendar/dist/Calendar.css'; // in CalendarComponent.jsx
+
 
 export default function App() {
   const [todos, setTodos] = useState(() => {
@@ -50,8 +54,11 @@ function deleteTodo(id) {
   return ( 
   <>
   <NewTodoForm onSubmit={addTodo} />
-    <h1 className="header">To do List</h1>
+    <h1 className="header">To-do List for today</h1>
     <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo}/>
+    <h2>Calendar</h2>
+    <CalendarComponent />
   </>
   )
 }
+
