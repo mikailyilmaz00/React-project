@@ -14,11 +14,14 @@ const CalendarComponent = () => {
     const fetchTasks = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/getTasks')
+        if (!response.ok) throw new Error('Failed to fetch tasks');
+
         const data = await response.json()
         const taskWithDate = data.map(task => ({
-          ...tasks,
+          ...task,
           task: task.title,
           date: new Date(task.date),
+          completed: task.completed ?? false,
         }))
         setTasks(taskWithDate)
         console.log('KALDT')
@@ -56,13 +59,23 @@ const CalendarComponent = () => {
   };
 
 
-
-  const toggleTaskCompletion = (index) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
-  };
+  // const toggleTaskCompletion = (index) => {
+  //   setTasks((prevTasks) => )
+  //   const updatedTasks = [...tasks];
+  //   updatedTasks[index].completed = !updatedTasks[index].completed;
+  //   setTasks(updatedTasks);
+  // };
   
+  const toggleTaskCompletion = (index) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task, i) =>
+        i === index ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  
+
   const deleteTodo = async (taskObj) => {
     console.log('delete task with id', taskObj)
     console.log('with id', taskObj.id)
