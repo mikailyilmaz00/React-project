@@ -47,7 +47,17 @@ const deleteTask = async (id) => {
       });
     }
 
-export default {getTasks, createTask, deleteTask};
+const updateTask = async (taskId, completed) => {
+  try {
+    const [result] = await database.query('UPDATE tasks SET completed = ? WHERE id = ?', [completed, taskId])
+  return result
+  } catch (error) {
+    console.error('Error updating task', error)
+    throw error
+  }
+}
+
+export default {getTasks, createTask, deleteTask, updateTask};
 
 
 

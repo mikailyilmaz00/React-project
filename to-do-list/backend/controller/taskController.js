@@ -42,4 +42,30 @@ const deleteTask = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' })  
    }
 }
-export {getTasks, createTask, deleteTask};
+
+
+const updateTask = async (req, res) => {
+    const taskId = req.params.id
+    const { completed } = req.body
+
+    if (!taskId) {
+        return res.status(400).json({ error: 'Missing task ID' })
+    }
+
+    if(typeof completed !== 'boolean') {
+        return res.status(400).json({ error: 'Invalid completed value. Must be true of false'})
+    }
+    try {
+    const update = await taskModel.updateTask(taskId, completed)
+    if (!update || affectedRows === 0) {
+        return res.status(404).json({ error: 'Task not found' });
+    }
+
+    res.status(200).json({ message: 'Task updated successfully' });
+
+    } catch (error) {
+    console.error ('Error updating task', error)
+    res.status(500).json({ message: 'Internal server error'})
+    }
+}
+export {getTasks, createTask, deleteTask, updateTask};
