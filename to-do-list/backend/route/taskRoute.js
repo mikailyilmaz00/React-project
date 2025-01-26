@@ -6,7 +6,7 @@ const tasks = [];
 router.route('/getTasks').get(getTasks);
 router.route('/createTask').post(createTask);
 router.route('/deleteTask').delete(deleteTask)
-router.route('/updateTask').put(updateTask)
+router.route('/updateTask/:id').put(updateTask)
 
 
 

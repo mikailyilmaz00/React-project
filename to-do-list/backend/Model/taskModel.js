@@ -32,7 +32,6 @@ const createTask = async (title, date) => {
 };
 
 const deleteTask = async (id) => {  
-    
     const query = 'DELETE FROM tasks WHERE id = ?';
     return new Promise((resolve, reject) => {
       database.query(query, [id], (error, result) => {
@@ -47,9 +46,9 @@ const deleteTask = async (id) => {
       });
     }
 
-const updateTask = async (taskId, completed) => {
+const updateTask = async (taskId, completed, title, date) => {
   try {
-    const [result] = await database.query('UPDATE tasks SET completed = ? WHERE id = ?', [completed, taskId])
+    const [result] = await database.query('UPDATE tasks SET title = ?, date = ?, completed = ? WHERE id = ?', [title, new Date(date), completed, taskId])
   return result
   } catch (error) {
     console.error('Error updating task', error)

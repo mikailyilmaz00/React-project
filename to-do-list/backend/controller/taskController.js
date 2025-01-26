@@ -16,7 +16,7 @@ const createTask = async (req, res) => {
         console.log(task, date);
         //task id is not declared
         const taskId = await taskModel.createTask(task, date);
-        res.status(201).json({ message: 'mission complete' })
+        res.status(201).json({ message: 'mission complete', taskId })
     } catch (error) {
         res.status(500).json({ error: 'something went wrong' });
     }
@@ -45,19 +45,20 @@ const deleteTask = async (req, res) => {
 
 
 const updateTask = async (req, res) => {
+    console.log('Put req lever')
+
     const taskId = req.params.id
-    const { completed } = req.body
+    const { title, date, completed } = req.body
 
-    if (!taskId) {
-        return res.status(400).json({ error: 'Missing task ID' })
-    }
-
-    if(typeof completed !== 'boolean') {
-        return res.status(400).json({ error: 'Invalid completed value. Must be true of false'})
-    }
+    console.log('Modtaget data', { taskId, completed, date, title })
+    if (!taskId || !title || !date || typeof completed !== 'boolean') {
+        console.log('INVALID VALUE')
+        return res.status(400).json({ error: 'Missing task ID, task, date, or completed'})
+    } 
+       
     try {
-    const update = await taskModel.updateTask(taskId, completed)
-    if (!update || affectedRows === 0) {
+    const update = await taskModel.updateTask(taskId, completed, title, date)
+    if (!update || update.affectedRows === 0) {
         return res.status(404).json({ error: 'Task not found' });
     }
 

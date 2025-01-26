@@ -12,7 +12,9 @@ import taskRoute from './route/taskRoute.js';
 
 app.use(cors());
 
+app.use(express.json());
 app.use(json());
+
 
 app.use('/api', taskRoute);
 

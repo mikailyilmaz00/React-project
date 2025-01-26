@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 const database = await mysql.createConnection({
     host: 'localhost',
     user: 'root', 
-    password: 'x',
+    password: 'Mauroicardi1905',
     database: 'todo_db',
 });
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import { updateTask } from '../backend/controller/taskController';
 // import { TodoItem } from './TodoItem';
 // import { axios } from "axios"
 
@@ -66,13 +67,39 @@ const CalendarComponent = () => {
   //   setTasks(updatedTasks);
   // };
   
-  const toggleTaskCompletion = (index) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task, i) =>
-        i === index ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
+  const toggleTaskCompletion = async (index) => {
+    const updatedTasks = [...tasks]
+    const updatedTask = updatedTasks[index]
+    updatedTask.completed = !updatedTask.completed
+    setTasks(updatedTasks)
+
+    try {
+      const response = await fetch('http://localhost:3000/api/updateTask/${updatedTask.id}', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: updateTask.task,
+          date: updateTask.date.toISOString(),
+          completed: updatedTask.completed,
+        }),
+      })
+        if (!response.ok) {
+          console.error('Failed to update task')
+          return
+        }
+      
+    } catch (error) {
+      console.error('Error updating task:', error)
+    }
+}
+  //   setTasks((prevTasks) =>
+  //     prevTasks.map((task, i) =>
+  //       i === index ? { ...task, completed: !task.completed } : task
+  //     )
+  //   );
+  // };
 
   
 
@@ -103,6 +130,8 @@ const CalendarComponent = () => {
     }
 
   };
+
+  
   
   
   return (
@@ -166,6 +195,5 @@ const CalendarComponent = () => {
       </div>
     </div>
   );
-};
-
+}
 export default CalendarComponent;
