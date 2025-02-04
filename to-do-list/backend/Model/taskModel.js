@@ -46,15 +46,22 @@ const deleteTask = async (id) => {
       });
     }
 
-const updateTask = async (taskId, completed, title, date) => {
-  try {
-    const [result] = await database.query('UPDATE tasks SET title = ?, date = ?, completed = ? WHERE id = ?', [title, new Date(date), completed, taskId])
-  return result
-  } catch (error) {
-    console.error('Error updating task', error)
-    throw error
-  }
-}
+    const updateTask = async (taskId, completed, title, date) => {
+      try {
+          const parsedCompleted = completed === true || completed === "true" ? 1 : 0; // Konverter til boolean (1 eller 0)
+  
+          const [result] = await database.query(
+              'UPDATE tasks SET title = ?, date = ?, completed = ? WHERE id = ?',
+              [title, new Date(date), parsedCompleted, taskId]
+          );
+  
+          return result;
+      } catch (error) {
+          console.error('Error updating task', error);
+          throw error;
+      }
+  };
+  
 
 export default {getTasks, createTask, deleteTask, updateTask};
 

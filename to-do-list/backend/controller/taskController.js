@@ -69,4 +69,37 @@ const updateTask = async (req, res) => {
     res.status(500).json({ message: 'Internal server error'})
     }
 }
+
+
+
+
+// const updateTask = async (req, res) => {
+//     const taskId = req.params.id;
+//     const { title, date, completed } = req.body; // Getting completed from req.body
+
+//     console.log("Received update request:", { taskId, title, date, completed });
+
+//     if (typeof completed !== "boolean") {
+//         return res.status(400).json({ error: "Invalid 'completed' value. Must be true or false." });
+//     }
+
+//     try {
+//         const query = `UPDATE tasks SET title = ?, date = ?, completed = ? WHERE id = ?`;
+//         const values = [title, date, completed ? 1 : 0, taskId]; // Ensure completed is 0 or 1
+
+//         const [result] = await pool.execute(query, values);
+        
+//         console.log("Update result:", result);
+
+//         if (result.affectedRows > 0) {
+//             res.json({ message: "Task updated successfully" });
+//         } else {
+//             res.status(404).json({ error: "Task not found" });
+//         }
+//     } catch (error) {
+//         console.error("Error updating task:", error);
+//         res.status(500).json({ error: "Database error" });
+//     }
+// };
+
 export {getTasks, createTask, deleteTask, updateTask};
