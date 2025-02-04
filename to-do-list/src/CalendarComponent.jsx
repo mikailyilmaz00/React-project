@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { updateTask } from '../backend/controller/taskController';
+// import { updateTask } from '../backend/controller/taskController';
 // import { TodoItem } from './TodoItem';
 // import { axios } from "axios"
 
@@ -41,7 +41,7 @@ const CalendarComponent = () => {
   const handleAddTask = async (task, date) => {
     console.log("kaldt", task, selectedDate)
     if (task) {
-      setTasks([...tasks, { task, date: date, completed: false }]);
+      setTasks([...tasks, { id: data.TaskId, date: date, completed: false }]);
 
       try {
         const response = await fetch('http://localhost:3000/api/createTask', {
@@ -49,7 +49,7 @@ const CalendarComponent = () => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ task, date })
+            body: JSON.stringify({ title, date })
         });
       } catch (error) {
         console.log('Error', error);
@@ -71,17 +71,17 @@ const CalendarComponent = () => {
     const updatedTasks = [...tasks]
     const updatedTask = updatedTasks[index]
     updatedTask.completed = !updatedTask.completed
-    setTasks(updatedTasks)
+    setTasks([...updatedTasks])
 
     try {
-      const response = await fetch('http://localhost:3000/api/updateTask/${updatedTask.id}', {
+      const response = await fetch(`http://localhost:3000/api/updateTask/${updatedTask.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: updateTask.task,
-          date: updateTask.date.toISOString(),
+          title: updatedTask.task,
+          date: updatedTask.date.toISOString(),
           completed: updatedTask.completed,
         }),
       })
@@ -178,7 +178,7 @@ const CalendarComponent = () => {
               <li key={index} className="task-item">             <input
                   type="checkbox"
                   className="task-checkbox"  // Checkbox class
-                  checked={taskObj.completed}
+                  checked={tasks.completed}
                   onChange={() => toggleTaskCompletion(index)}
                 />
                 <span className={taskObj.completed ? 'completed' : ''}>
