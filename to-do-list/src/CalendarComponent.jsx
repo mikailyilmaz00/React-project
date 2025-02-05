@@ -8,7 +8,8 @@ import 'react-calendar/dist/Calendar.css';
 const CalendarComponent = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [tasks, setTasks] = useState([]);
-
+  const [editingTaskId, setEditingTaskId] = useState(null)
+  const [editedTaskTitle, setEditedTaskTitle] = useState('')
   // fetching tasks 
 
   useEffect(() => {
@@ -21,7 +22,7 @@ const CalendarComponent = () => {
         const taskWithDate = data.map(task => ({
           ...task,
           task: task.title,
-          date: new Date(task.date),
+          date: task.date ? new Date(task.date) : new Date(),
           completed: task.completed ?? false,
         }))
         setTasks(taskWithDate)
@@ -39,23 +40,66 @@ const CalendarComponent = () => {
   };
 
   const handleAddTask = async (task, date) => {
-    console.log("kaldt", task, selectedDate)
+    console.log("kaldt", task, selectedDate); // Logs task and date for debugging
     if (task) {
-      setTasks([...tasks, { id: data.TaskId, date: date, completed: false }]);
-
+      // Create new task with the correct date format (ISO string)
+      const newTask = { title: task, date: selectedDate.toISOString(), completed: false };
+      setTasks([...tasks, newTask]);
+  
       try {
         const response = await fetch('http://localhost:3000/api/createTask', {
-        method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ title, date })
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            task,
+            date 
+          })
         });
+  
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Task created successfully:", data);
+        } else {
+          console.error("Failed to create task:", response.statusText);
+        }
       } catch (error) {
         console.log('Error', error);
-        
       }
-    
+    } else {
+      console.error("Error: Task title is missing!");
+    }
+  };
+  
+
+  const handleEditClick = (task) => {
+    setEditingTaskId(task.id);
+    setEditedTaskTitle(task.task); // pre-fill the task input with current title
+  };
+
+  const handleUpdateTask = async () => {
+    const updatedTasks = tasks.map(task =>
+      task.id === editingTaskId ? { ...task, task: editedTaskTitle } : task
+    );
+    setTasks(updatedTasks);
+    setEditingTaskId(null); // Close the edit mode
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/updateTask/${editingTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editedTaskTitle,
+          date: selectedDate.toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update task');
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
     }
   };
 
@@ -71,7 +115,7 @@ const CalendarComponent = () => {
     const updatedTasks = [...tasks]
     const updatedTask = updatedTasks[index]
     updatedTask.completed = !updatedTask.completed
-    setTasks([...updatedTasks])
+    setTasks(updatedTasks)
 
     try {
       const response = await fetch(`http://localhost:3000/api/updateTask/${updatedTask.id}`, {
@@ -149,7 +193,7 @@ const CalendarComponent = () => {
 
       
       <p className="selected-date">
-        Selected Date: {selectedDate.toDateString()}
+        Selected Date: {selectedDate ? selectedDate.toDateString(): 'No date selected'}
       </p>
 
       <div className="task-input-container">
@@ -173,17 +217,28 @@ const CalendarComponent = () => {
         <h3 className="task-list-header">Plans for {selectedDate.toDateString()}</h3>
         <ul className="task-list">
           {tasks
-            .filter((taskObj) => taskObj.date.toDateString() === selectedDate.toDateString())
-            .map((taskObj, index) => (
-              <li key={index} className="task-item">             <input
+              .filter((taskObj) => taskObj.date && taskObj.date instanceof Date && taskObj.date.toDateString() === selectedDate.toDateString())
+              .map((taskObj, index) => (
+              <li key={taskObj.id} className="task-item">   <input
                   type="checkbox"
                   className="task-checkbox"  // Checkbox class
-                  checked={tasks.completed}
+                  checked={taskObj.completed}
                   onChange={() => toggleTaskCompletion(index)}
                 />
                 <span className={taskObj.completed ? 'completed' : ''}>
-                {taskObj.task} 
+                {editingTaskId === taskObj.id ?(
+                  <input
+                    type='text'
+                    value={editedTaskTitle}
+                    onChange={(e) => setEditedTaskTitle(e.target.value)}
+                    onBlur={handleUpdateTask} />
+                ) : (
+                  taskObj.task
+                )}
                 </span>
+                <button className="edit" onClick={() => handleEditClick(taskObj)}>
+                  {editingTaskId === taskObj.id ? 'Save' : 'Edit'}
+                </button>
                 <button 
                  className="delete-button"
         onClick={() => deleteTodo(taskObj)}>
