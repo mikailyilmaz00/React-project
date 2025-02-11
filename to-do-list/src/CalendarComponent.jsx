@@ -15,6 +15,7 @@ const CalendarComponent = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
+        console.log('kaldt fetch')
         const response = await fetch('http://localhost:3000/api/getTasks')
         if (!response.ok) throw new Error('Failed to fetch tasks');
 
@@ -26,14 +27,14 @@ const CalendarComponent = () => {
           completed: task.completed ?? false,
         }))
         setTasks(taskWithDate)
-        console.log('KALDT')
+        console.log('KALDT', taskWithDate)
       } catch (error) {
         console.error('Error fetching tasks:', error)
       }
     }
   
   fetchTasks();
-}, [selectedDate])
+}, [tasks, selectedDate])
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -75,15 +76,26 @@ const CalendarComponent = () => {
 
   const handleEditClick = (task) => {
     setEditingTaskId(task.id);
-    setEditedTaskTitle(task.task); // pre-fill the task input with current title
+    setEditedTaskTitle(task.task); 
   };
 
   const handleUpdateTask = async () => {
+    
+    // Nedenstående kode forsikrer, at task bliver opdateret med den nye titel, mens andre opgaver forbliver uændrede
     const updatedTasks = tasks.map(task =>
-      task.id === editingTaskId ? { ...task, task: editedTaskTitle } : task
+      task.id === editingTaskId ? { ...task, task: editedTaskTitle, completed: task.completed === true } : task
     );
     setTasks(updatedTasks);
-    setEditingTaskId(null); // Close the edit mode
+    setEditingTaskId(null); 
+
+    const updatedTask = updatedTasks.find(task => task.id === editingTaskId);
+  if (!updatedTask) {
+    console.error('Task not found!');
+    return;
+  }
+
+  console.log("Sending updated task to backend:", updatedTask);
+
 
     try {
       const response = await fetch(`http://localhost:3000/api/updateTask/${editingTaskId}`, {
@@ -92,8 +104,9 @@ const CalendarComponent = () => {
         body: JSON.stringify({
           title: editedTaskTitle,
           date: selectedDate.toISOString(),
+          completed: updatedTask.completed
         }),
-      });
+      })
 
       if (!response.ok) {
         console.error('Failed to update task');
@@ -111,19 +124,38 @@ const CalendarComponent = () => {
   //   setTasks(updatedTasks);
   // };
   
-  const toggleTaskCompletion = async (index) => {
+  const toggleTaskCompletion = async (taskId) => {
+    console.log("index is", taskId)
+
+    const index = tasks.findIndex(task => task.id === taskId)
+    if (index === -1) {
+      console.error("Task not found for id:", taskId)
+      return
+    }
+    // const index = updatedTask.findIndex(task => task.id === taskId)
+    // if (index === -1) {
+    //   console.error("Task not found for id", taskId)
+    //   return
+    // }
     const updatedTasks = [...tasks]
-    const updatedTask = updatedTasks[index]
+
+    console.log("tasks is ", tasks)
+    const updatedTask = { ...updatedTasks[index]}
     updatedTask.completed = !updatedTask.completed
+
+    updatedTasks[index] = updatedTask
     setTasks(updatedTasks)
 
+    console.log("id is ", updatedTasks.id)
+
     try {
-      const response = await fetch(`http://localhost:3000/api/updateTask/${updatedTask.id}`, {
+      const response = await fetch(`http://localhost:3000/api/updateTask/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          // taskId: obj.id,
           title: updatedTask.task,
           date: updatedTask.date.toISOString(),
           completed: updatedTask.completed,
@@ -195,7 +227,6 @@ const CalendarComponent = () => {
       <p className="selected-date">
         Selected Date: {selectedDate ? selectedDate.toDateString(): 'No date selected'}
       </p>
-
       <div className="task-input-container">
         <input
           type="text"
@@ -218,15 +249,18 @@ const CalendarComponent = () => {
         <ul className="task-list">
           {tasks
               .filter((taskObj) => taskObj.date && taskObj.date instanceof Date && taskObj.date.toDateString() === selectedDate.toDateString())
-              .map((taskObj, index) => (
+              .map((taskObj) => (
+                
               <li key={taskObj.id} className="task-item">   <input
                   type="checkbox"
                   className="task-checkbox"  // Checkbox class
                   checked={taskObj.completed}
-                  onChange={() => toggleTaskCompletion(index)}
+                  onChange={() => toggleTaskCompletion(taskObj.id
+                    
+                  )}
                 />
                 <span className={taskObj.completed ? 'completed' : ''}>
-                {editingTaskId === taskObj.id ?(
+                {editingTaskId === taskObj.id ? (
                   <input
                     type='text'
                     value={editedTaskTitle}
