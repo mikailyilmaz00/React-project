@@ -54,7 +54,7 @@ function deleteTodo(id) {
   return ( 
   <>
   <NewTodoForm onSubmit={addTodo} />
-    <h1 className="header">To-do List for today</h1>
+    <h1 className="header">Pinned tasks</h1>
     <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo}/>
     <h2>Calendar</h2>
     <CalendarComponent />

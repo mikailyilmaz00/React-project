@@ -211,15 +211,15 @@ const CalendarComponent = () => {
   
   
   return (
-    <div className="calendar-container"> {/* Container for the whole calendar */}
-      <h1 className="calendar-header">To-do List with Calendar</h1> {/* Header for the calendar */}
+    <div className="calendar-container"> 
+      <h1 className="calendar-header">Plan your to-do lists in advance</h1> 
       
-      {/* Calendar component with custom class */}
+     
       <div className="calendar-wrapper">
         <Calendar
           onChange={handleDateChange}
           value={selectedDate}
-          className="calendar"  // Custom class for calendar
+          className="calendar" 
         />
       </div>
 
@@ -232,7 +232,7 @@ const CalendarComponent = () => {
           type="text"
           id="task-input"
           placeholder="Add a task..."
-          className="task-input"  // Custom class for the input
+          className="task-input"  
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               handleAddTask(e.target.value, selectedDate);
@@ -253,7 +253,7 @@ const CalendarComponent = () => {
                 
               <li key={taskObj.id} className="task-item">   <input
                   type="checkbox"
-                  className="task-checkbox"  // Checkbox class
+                  className="task-checkbox"  
                   checked={taskObj.completed}
                   onChange={() => toggleTaskCompletion(taskObj.id
                     
